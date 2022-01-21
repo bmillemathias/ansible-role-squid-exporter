@@ -2,6 +2,7 @@
 galaxy_info:
   author: Baptiste Mille-Mathias
   description: Prometheus Squid Exporter
+  namespace: bmillemathias
   role_name: squid_exporter
   license: MIT
   company: none
@@ -24,10 +25,11 @@ galaxy_info:
         - 30
         - 31
   galaxy_tags:
+    - exporter
+    - metrics
     - monitoring
     - prometheus
-    - exporter
+    - proxy
     - squid
-    - metrics
 
 dependencies: []
