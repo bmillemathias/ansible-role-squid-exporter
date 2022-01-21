@@ -1,0 +1,41 @@
+---
+- name: Create the Squid Exporter group
+  group:
+    name: "{{ __squid_exporter_group }}"
+    state: present
+    system: true
+
+- name: Create the Squid Exporter user
+  user:
+    name: "{{ __squid_exporter_user }}"
+    groups: "{{ __squid_exporter_group }}"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: false
+    home: /
+
+- name: Download squid_exporter binary
+  become: false
+  get_url:
+    url: "https://github.com/boynux/squid-exporter/releases/download/v{{ squid_exporter_version }}/squid-exporter"
+    dest: "/usr/local/bin/squid_exporter"
+    mode: 0755
+    owner: root
+    group: root
+  register: _download_binary
+  until: _download_binary is succeeded
+  retries: 5
+  delay: 2
+  check_mode: false
+
+- name: Copy the squid_exporter systemd service file
+  template:
+    src: squid_exporter.service.j2
+    dest: /etc/systemd/system/squid_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
+  notify:
+    - restart squid exporter

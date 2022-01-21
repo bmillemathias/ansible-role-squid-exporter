@@ -1,0 +1,7 @@
+---
+squid_exporter_label: {}
+squid_exporter_metrics_path: '/metrics'
+squid_exporter_squid_pid: ""
+squid_exporter_squid_port: 3128
+squid_exporter_version: '1.10.0'
+squid_exporter_web_listen_address: "0.0.0.0:9301"

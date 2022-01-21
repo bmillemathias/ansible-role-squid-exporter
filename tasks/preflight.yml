@@ -1,0 +1,40 @@
+---
+- name: Assert usage of systemd as an init system
+  assert:
+    that: ansible_service_mgr == 'systemd'
+    msg: "This role only works with systemd"
+
+- name: Get systemd version
+  command: systemctl --version
+  changed_when: false
+  check_mode: false
+  register: __systemd_version
+  tags:
+    - skip_ansible_lint
+
+- name: Set systemd version fact
+  set_fact:
+    squid_exporter_systemd_version: "{{ __systemd_version.stdout_lines[0] | regex_replace('^systemd\\s(\\d+).*$', '\\1') }}"
+
+- name: Naive assertion of proper listen address
+  assert:
+    that:
+      - "':' in squid_exporter_web_listen_address"
+
+- name: Check squid_exporter_metrics_path is a path
+  assert:
+    that:
+      - "squid_exporter_metrics_path is regex('^/.*')"
+
+- name: check squid_exporter_label is a dictionnary
+  assert:
+    that:
+      - squid_exporter_label is mapping
+  when: squid_exporter_label is defined
+
+# - name: "Get checksum for {{ go_arch_map[ansible_architecture] | default(ansible_architecture) }} architecture"
+#   set_fact:
+#     __squid_exporter_checksum: "{{ item.split(' ')[0] }}"
+#   with_items:
+#     - "{{ lookup('url', 'https://github.com/boynux/squid-exporter/releases/download/v' + squid_exporter_version + '/sha256sums.txt', wantlist=True) | list }}"
+#   when: "('linux-' + (go_arch_map[ansible_architecture] | default(ansible_architecture)) + '.tar.gz') in item"
